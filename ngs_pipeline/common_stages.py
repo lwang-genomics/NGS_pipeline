@@ -3,8 +3,7 @@
 store all the common functions used for sequencing pipeline
 '''
 import subprocess, os
-import utils
-
+from ngs_pipeline.common import utils
 #===============
 #==Paths Info===
 #===============
@@ -43,7 +42,7 @@ wigToBigWig="/hpf/largeprojects/mdwilson/lib/wigToBigWig"
 #==============
 #===QC steps===
 #==============
-@utils.formated_output
+
 def fastqc(fastqgz, threads):
     '''
     quality control using fastqc
@@ -52,13 +51,13 @@ def fastqc(fastqgz, threads):
     subprocess.call([FASTQC, fastqgz, "-o", ".", "--noextract", "-t", str(threads)])
 
 
-@utils.formated_output
+
 def picard(bam):
     print(' '.join([JAVA, '-jar', PICARD, 'EstimateLibraryComplexity', 'I=' + bam, 'O=' + bam.replace(".bam", ".txt")]) + '\n')
     subprocess.call([JAVA, '-jar', PICARD, 'EstimateLibraryComplexity', 'I=' + bam, 'O=' + bam.replace(".bam", ".txt")])
 
 
-@utils.formated_output
+
 def qualimap(bam, strand, gtf, pair_end=False):
     '''
     quality control for bam files;
@@ -71,7 +70,7 @@ def qualimap(bam, strand, gtf, pair_end=False):
                     %(QUALIMAP, '-pe -s' if pair_end else '', bam, gtf, strand_dict[strand], bam.replace(".bam", "")), shell=True)
 
 
-@utils.formated_output
+
 def multiqc():
     '''
     pipeline summary report by MultiQc
@@ -87,7 +86,7 @@ def multiqc():
 #=====================
 #===Pipeline Stages===
 #=====================
-@utils.formated_output
+
 def sra_to_fastq_se(sra):
     '''
     convert sra to fastq.gz format
@@ -96,7 +95,7 @@ def sra_to_fastq_se(sra):
     subprocess.call([FASTQ_DUMP, '--split-3', '--gzip', sra])
 
 
-@utils.formated_output
+
 def trim_SE(fastqgz, threads, adapters=ADAPTERS):
     '''
     Trim poor quility bases and/or adapter sequences from reads using Trimmomatic
@@ -110,7 +109,7 @@ def trim_SE(fastqgz, threads, adapters=ADAPTERS):
                      'MINLEN:' + MINLEN, 'SLIDINGWINDOW:' + WINDOWTRIM])
 
 
-@utils.formated_output
+
 def trim_PE(prefix1, prefix2, threads, adapters=ADAPTERS_PE):
     print('%s -jar -Xmx8g %s PE -phred33 -threads %s %s %s %s %s %s %s ILLUMINACLIP:%s:%s \
                     LEADING:%s TRAILING:%s SLIDINGWINDOW:%s MINLEN:%s' \
@@ -124,13 +123,12 @@ def trim_PE(prefix1, prefix2, threads, adapters=ADAPTERS_PE):
                       ILLUMINACLIP, LEADING, TRAILING, WINDOWTRIM, MINLEN), shell=True)
 
 
-@utils.formated_output
 def sam_to_bam(sam, threads):
     print(f'{SAMTOOLS} view -S -b {sam} -@ {threads} > {sam.replace(".sam", ".bam")}' + '\n')
     subprocess.call(f'{SAMTOOLS} view -S -b {sam} -@ {threads} > {sam.replace(".sam", ".bam")}', shell=True)
 
 
-@utils.formated_output
+
 def sort_bam(bam, threads, byname=False):
     print('%s sort %s --threads %s %s -o %s' %(SAMTOOLS, '-n' if byname else '', str(threads), bam,
                                                          bam.replace(".bam", "_sorted.bam")) + '\n')
@@ -138,13 +136,13 @@ def sort_bam(bam, threads, byname=False):
                                                          bam.replace(".bam", "_sorted.bam")), shell=True)
 
 
-@utils.formated_output
+
 def index_bam(bam):
     print(' '.join([SAMTOOLS, 'index', bam]) + '\n')
     subprocess.call([SAMTOOLS, 'index', bam])
 
 
-@utils.formated_output
+
 def roughuniq_bam(bam, threads, mapq=5):
     #NOTE: '>' and '|' won't work in a list manner, have to use shell=True
     print('%s view -bq %s -@ %d %s > %s' %(SAMTOOLS, str(mapq), threads, bam, bam.replace(".bam", "_roughuniq.bam")) + '\n')
@@ -152,7 +150,7 @@ def roughuniq_bam(bam, threads, mapq=5):
                                                shell=True)
 
 
-@utils.formated_output
+
 def filter_pairs(bam, threads):
     '''
     filter out the proper pairs in pair end bam files
@@ -161,7 +159,7 @@ def filter_pairs(bam, threads):
     subprocess.call('%s view -b -f 2 -@ %d %s > %s' %(SAMTOOLS, threads, bam, bam.replace(".bam", "_propaired.bam")), shell=True)
 
 
-@utils.formated_output
+
 def bam_to_bw(bam, chrom_info, threads, pe=False):
     '''
     useful function to directly output normalized bigwig files;
@@ -199,13 +197,13 @@ def bam_to_bw(bam, chrom_info, threads, pe=False):
     subprocess.call(bedGraph_to_bw_cmd2, shell=True)
 
 
-@utils.formated_output
+
 def wiggleTobw(in_wig, chrom_sizes):
     print('%s %s %s %s' %(wigToBigWig, in_wig, chrom_sizes, in_wig.replace('.wig', '.bw')) + '\n')
     subprocess.call('%s %s %s %s' %(wigToBigWig, in_wig, chrom_sizes, in_wig.replace('.wig', '.bw')), shell=True)
 
 
-@utils.formated_output
+
 def generate_stats():
     pass
 

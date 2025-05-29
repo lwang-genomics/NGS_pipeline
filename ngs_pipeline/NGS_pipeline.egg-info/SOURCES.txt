@@ -1,0 +1,11 @@
+README.md
+setup.py
+scripts/NGS_pipeline.egg-info/PKG-INFO
+scripts/NGS_pipeline.egg-info/SOURCES.txt
+scripts/NGS_pipeline.egg-info/dependency_links.txt
+scripts/NGS_pipeline.egg-info/entry_points.txt
+scripts/NGS_pipeline.egg-info/top_level.txt
+scripts/common/__init__.py
+scripts/common/utils.py
+scripts/rna_seq/__init__.py
+scripts/rna_seq/rna_seq.py

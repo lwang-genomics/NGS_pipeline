@@ -4,7 +4,7 @@ Pipeline steps in RNA-seq
 '''
 
 import subprocess, sys
-import utils
+from ngs_pipeline.common import utils
 
 #===============
 #===Tool Path===
@@ -19,7 +19,7 @@ SALMON="/hpf/tools/centos6/salmon/0.13.1/bin/salmon"
 #=====================
 #===Pipeline Stages===
 #=====================
-@utils.formated_output
+
 def star_se(star, gen_dir, prefix, threads, strand, star_genecounts=True):
     print('%s --genomeDir %s --readFilesIn %s --readFilesCommand gunzip -c \
     --outFilterType BySJout --outFilterMultimapNmax 20 --alignSJoverhangMin 8 --alignSJDBoverhangMin 1 \
@@ -38,7 +38,7 @@ def star_se(star, gen_dir, prefix, threads, strand, star_genecounts=True):
                       prefix, strand), shell=True)
 
 
-@utils.formated_output
+
 def star_pe(star, gen_dir, prefix1, prefix2, prefix, threads, strand, star_genecounts=True):
     print('%s --genomeDir %s --readFilesIn %s %s --readFilesCommand gunzip -c \
     --outFilterType BySJout --outFilterMultimapNmax 20 --alignSJoverhangMin 8 --alignSJDBoverhangMin 1 \
@@ -57,7 +57,7 @@ def star_pe(star, gen_dir, prefix1, prefix2, prefix, threads, strand, star_genec
                       "--quantMode GeneCounts" if star_genecounts else "", prefix, strand), shell=True)
 
 
-@utils.formated_output
+
 def feature_counts(prefix, strand, threads, gtf_file, count_type="exon", pair_end=False):
     '''
     generate the counttable for a single library/sample
@@ -74,7 +74,7 @@ def feature_counts(prefix, strand, threads, gtf_file, count_type="exon", pair_en
                       '_roughuniq.bam'), shell=True)
 
 
-@utils.formated_output
+
 def salmon(index, prefix1, prefix2, prefix, threads):
     print(f'{SALMON} quant -i {index} -l A -1 {prefix1}_paired.fastq.gz -2 {prefix2}_paired.fastq.gz '
                     f'-p {threads}  -o {prefix}_quant --validateMappings')

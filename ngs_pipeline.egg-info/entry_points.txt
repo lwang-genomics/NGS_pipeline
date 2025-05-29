@@ -1,0 +1,3 @@
+[console_scripts]
+rna-seq = ngs_pipeline.rna_seq.rna_seq:main
+
