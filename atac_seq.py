@@ -1,21 +1,6 @@
 #!/usr/bin/env python3
 '''
-Designed for pair-end ATAC-seq samples (for single end, go use chip_seq.py)
 
-pls make sure the input r1 and r2 format as : something_r1.fastq.gz
-
-bwa values are pretty weird for bwa.... can not be interpreted as the normal way....
-probably just get the unique mapping reads using 60...
-
-!! need to include ataqv for the pair-end (TSS enrichment may be mostly important to look at)
-$$ for the cluster ataqv, have to module load it before use!
-
-
-
-
-
-
-$$ should keep the original bams for qcs or ataqv and then delete???
 '''
 
 import os,sys,time,argparse,subprocess,re,glob

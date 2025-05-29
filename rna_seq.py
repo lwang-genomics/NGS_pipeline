@@ -1,27 +1,7 @@
 #!/usr/bin/env python3
 '''
-
-Bugs to be fixed:
-1. when delete wiggle files: has to be specific!!!!
-2. when count the stats for all the files!!!
-3. for some samples, just cannot output the bw files....; => fixed [pls do not use "+" or "-" in the name, could potentially mess up with the regex]
-
-
-process raw sequence data from fasta/sra to downstream files, including bw, bam and countable files. Also, qc files are included.
-Version 1.0: only works on single end files [check]
-Version 2.0: works on both single end and pairend [check]
-Version 3.0: to add parallel functionality // also test for any standard error and then stop running
-Version 4.0: include psuedoalignment tool into the script using salmon || only support pair-end salmon now
-
-$!! NOTE: polyA-enriched pipeline should map to exonic region// while total RNA-seq should map to the whole gene??
-$ add trackhub generater to automatically generate a track hub text\
-$ add customized arguments functionality!! [use a file to store all the additional argument information]
-
-one common error: "awk: (FILENAME=342287_1_RV_R1_stats_summary FNR=1) fatal: division by zero attempted"
-
-improve java tool runnign efficiency using export _JAVA_OPTIONS=-Xmx8G
-
 written in python 3.6.6
+
 '''
 
 import os,sys,time,argparse,subprocess,re,glob

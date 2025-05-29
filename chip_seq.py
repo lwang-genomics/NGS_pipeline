@@ -1,21 +1,6 @@
 #!/usr/bin/env python3
 '''
 
-?? think about mapq values for BWA generated bam files
-
-?? do we remove black regions from atac-seq datasets??
-
-?? multiqc sometimes can sometimes can not recognize trimmomatic???
-
-$$ errors with the cluster ataqv so have not implemented yet
-
-NOTE: python 3.4 does not work; should use python 3.6.3 in cluster
-
-ataqv also needs index....
-
-$$ implement two default genome assembly: hg19 and mm10 which can be used for just type hsap/mmus ||
-others should input the directory information
-
 '''
 
 import os,sys,time,argparse,subprocess,re,glob

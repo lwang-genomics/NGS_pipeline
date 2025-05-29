@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 '''
-Some utilities that can be easily adapted by other scripts
+Some extra utilities 
 '''
 
 import sys, datetime
