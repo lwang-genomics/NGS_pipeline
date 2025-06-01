@@ -55,11 +55,12 @@ rna-seq SRR123456.R1.fq.gz SRR123456.R2.fq.gz\
 
 ## Options
 ```text
-usage: rna-seq [-h] [-sp {hsap,mmus}] [-mq MAPQ] [-st {none,forward,reverse}] [-g GTF] [--pseudo] [--no-trim] [--feature-level {gene,exon}]
-               [--keep-intermediate] [--threads THREADS]
+usage: rna-seq [-h] [--genome-dir GENOME_DIR] [-sp {hsap,mmus}] [-mq MAPQ] [-st {none,forward,reverse}] [-g GTF] [--pseudo] [--no-trim]
+               [--feature-level {gene,exon}] [--keep-intermediate] [--threads THREADS]
                file1 [file2]
 
-A light-weight RNA-seq preprocessing pipeline script. The tool now supports both single-end and paired-end RNA-seq samples and offers the flexibility for both traditional alignment (STAR) and psuedo-alignment (Salmon). 
+A light-weight RNA-seq preprocessing pipeline script. Now supports both single-end and paired-end RNA-seq samples Supports both classic (STAR)
+alignment and psuedo alignment (salmon)
 
 positional arguments:
   file1                 Input FASTQ file (R1). For single-end reads, provide only this file.
@@ -67,8 +68,10 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
+  --genome-dir GENOME_DIR
+                        Custom genome directory path. Please structure the genome folder as defaut ones.
   -sp {hsap,mmus}, --species {hsap,mmus}
-                        Target species genome for alignment: 'hsap' (human) or 'mmus' (mouse). Default is 'hsap'.
+                        Target species genome for alignment: 'hsap' (hg38) or 'mmus' (mm10). Default is 'hsap'.
   -mq MAPQ, --mapq MAPQ
                         Minimum MAPQ score to retain reads in the BAM file. Default is 5.
   -st {none,forward,reverse}, --strandness {none,forward,reverse}
@@ -151,6 +154,7 @@ MIT License
 ## Acknowledgments
 
 This pipeline integrates many excellent open-source bioinformatics tools. Credit goes to the developers of STAR, Salmon, Trimmomatic, SAMtools, Subread, Qualimap, UCSC tools and so on.
+
 
 
 Let me know if you have any questions or suggestions about my pipeline script!

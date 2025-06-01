@@ -1,3 +1,4 @@
+GENOME_DIR = Path("lib/hg38")
 #!/usr/bin/env python3
 """
 A light-weight RNA-seq preprocessing pipeline script.
@@ -21,8 +22,8 @@ from scripts.common import utils
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--genome-dir', type=Path, required=False,
-                        help='Custom genome directory path. Please structure the genome folder as defaut ones.')
+    parser.add_argument('--genome-dir', type=Path, default=args.genome_dir,
+                        help='Custom genome directory path. Must match expected folder structure.')
     parser.add_argument('file1', help="Input FASTQ file (R1). For single-end reads, provide only this file.")
     parser.add_argument('file2', nargs='?', default=None,
                         help="Optional FASTQ file (R2) for paired-end reads. Leave blank for single-end.")
@@ -46,21 +47,13 @@ def main():
                         help="Number of threads to use for multithreaded tools. Default is 4.")
     args = parser.parse_args()
 
-
-    if args.genome_dir:
-        GENOME_DIR = args.genome_dir
-        STAR_INDEX = GENOME_DIR / 'star_index'
-        SALMON_INDEX = GENOME_DIR / 'salmon_index'
-        GTF_FILE = list((GENOME_DIR/"gtf").glob("*.gtf"))[0]
-        CHROM_SIZES =list(GENOME_DIR.glob("*chrom.sizes"))[0]
-    else:
-        BASE_DIR = Path(__file__).resolve().parents[2]
-        species_dir = 'hg38' if args.species == 'hsap' else 'mm10'
-        GENOME_DIR = BASE_DIR / 'lib' / species_dir
-        STAR_INDEX = GENOME_DIR / 'star_index'
-        SALMON_INDEX = GENOME_DIR / 'salmon_index'
-        GTF_FILE = args.gtf if args.gtf else (GENOME_DIR / 'gtf' / ('gencode.v46.basic.annotation.gtf' if species_dir == 'hg38' else 'gencode.vM10.basic.annotation.gtf'))
-        CHROM_SIZES = GENOME_DIR / f'{species_dir}.chrom.sizes'
+    BASE_DIR = Path(__file__).resolve().parents[2]
+    species_dir = 'hg38' if args.species == 'hsap' else 'mm10'
+    args.genome_dir = BASE_DIR / 'lib' / species_dir
+    STAR_INDEX = args.genome_dir / 'star_index'
+    SALMON_INDEX = args.genome_dir / 'salmon_index'
+    GTF_FILE = args.gtf if args.gtf else (args.genome_dir / 'gtf' / ('gencode.v46.basic.annotation.gtf' if species_dir == 'hg38' else 'gencode.vM10.basic.annotation.gtf'))
+    CHROM_SIZES = args.genome_dir / f'{species_dir}.chrom.sizes'
 
     sample_name = utils.get_sample_name(args.file1)
     qc_dir = f"{sample_name}_QC"
