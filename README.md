@@ -5,9 +5,9 @@ This repository contains a modular and automated Python tool for processing RNA-
 ## Features
 
 - Automatic detection of read type (single-end or paired-end)  
-- Trimming with Trimmomatic  
+- Trimming with **Trimmomatic**  
 - Alignment using **STAR** or **Salmon**  
-- Sorting and indexing of BAM files via SAMtools  
+- Sorting and indexing of BAM files via **SAMtools**  
 - Gene quantification with **featureCounts**   
 - Quality control with **fastqc**, **Qualimap** (summarized by **MultiQC**) 
 - Generation of strand-specific **BigWig** files  
