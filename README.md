@@ -51,6 +51,7 @@ rna-seq SRR123456.R1.fq.gz SRR123456.R2.fq.gz\
 ```
 
 ## Options
+```text
 usage: rna-seq [-h] [-sp {hsap,mmus}] [-mq MAPQ] [-st {none,forward,reverse}] [-g GTF] [--pseudo] [--no-trim] [--feature-level {gene,exon}]
                [--keep-intermediate] [--threads THREADS]
                file1 [file2]
@@ -83,7 +84,7 @@ options:
 - sampleX_counts.txt — Gene count matrix
 - sampleX*.bw — Strand-specific normalized BigWig signal
 - sampleX_QC/ — Quality control reports
-
+```
 ## Logging
 
 Each major processing step is logged to a file with command and execution details (\*.log).
