@@ -10,7 +10,7 @@ This repository contains a modular and automated Python tool for processing RNA-
 - Sorting and indexing of BAM files via **SAMtools**  
 - Gene quantification with **featureCounts**   
 - Quality control with **fastqc**, **Qualimap** (summarized by **MultiQC**) 
-- Generation of strand-specific **BigWig** files  
+- Generation of strand-specific BigWig files  
 - Detailed and reproducible logging at each processing stages 
 
 ## Installation
