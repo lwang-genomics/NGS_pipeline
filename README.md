@@ -22,7 +22,7 @@ git clone https://github.com/lwang-genomics/NGS_pipeline.git
 cd NGS_pipeline
 ```
 
-2. Download default reference files (optional but recommended)
+2. Download default reference files (optional but recommended). \n
 Current default: hg38 & mm10
 
 ```bash
