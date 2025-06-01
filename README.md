@@ -1,4 +1,7 @@
-# NGS_pipeline: A super pipeline wrapper for RNA-seq, ChIP-seq and ATAC-seq
+# NGS_pipeline: An All-in-One Modular Wrapper for RNA-seq, ChIP-seq, and ATAC-seq Workflows
+
+**NGS_pipeline** is a streamlined, modular wrapper designed to simplify and automate the analysis of next-generation sequencing (NGS) data, including RNA-seq, ChIP-seq, and ATAC-seq. Built in Python, this tool provides flexible support for both single-end and paired-end reads, enabling users to perform trimming, alignment, quantification, peak calling, and quality control through intuitive commands. With minimal setup and clear structure, NGS_pipeline is ideal for both routine processing and reproducible research workflows.
+
 
 ## Installation
 
