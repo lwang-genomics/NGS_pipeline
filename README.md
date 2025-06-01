@@ -1,6 +1,6 @@
 # NGS_pipeline: An All-in-One Modular Wrapper for RNA-seq, ChIP-seq, and ATAC-seq Workflows
 
-**NGS_pipeline** is a streamlined, modular wrapper designed to simplify and automate the analysis of next-generation sequencing (NGS) data, including RNA-seq, ChIP-seq, and ATAC-seq. Built in Python, this tool provides flexible support for both single-end and paired-end reads, enabling users to perform trimming, alignment, quantification, peak calling, and quality control through intuitive commands. With minimal setup and clear structure, NGS_pipeline is ideal for both routine processing and reproducible research workflows.
+**NGS_pipeline** is a streamlined, light-weight wrapper designed to simplify and automate the analysis of next-generation sequencing (NGS) data, including RNA-seq, ChIP-seq, and ATAC-seq. Built in Python, this tool provides flexible support for both single-end and paired-end reads, enabling users to perform trimming, alignment, quantification, peak calling, and quality control through intuitive commands. With minimal setup and clear structure, NGS_pipeline is ideal for both routine processing and reproducible research workflows.
 
 
 ## Installation
@@ -46,12 +46,13 @@ Qualimap
 ## ChIP-seq & ATAC-seq:
 BWA
 MACS2
+Aatqv
 
 ```
 
 ## I. RNA-Seq Processing Tool
 
-This repository contains a modular and automated Python tool for processing RNA-Seq data. It supports both single-end and paired-end reads with comprehensive support for trimming, alignment, quantification, and quality control. The tool offers flexibity to use both traditional mapping (STAR) and pseudo-alignment (Salmon).
+This repository contains a modular and automated Python tool for processing RNA-seq data. It supports both single-end and paired-end reads with comprehensive support for trimming, alignment, quantification, and quality control. The tool offers flexibity to use both traditional mapping (STAR) and pseudo-alignment (Salmon).
 
 ### Features
 
@@ -116,7 +117,7 @@ options:
 
 ## II. ChIP-Seq Processing Tool
 
-This pipeline provides an automated and lightweight solution for processing ChIP-Seq data. It supports both single-end and paired-end sequencing reads and performs all major steps from raw read preprocessing to peak calling. The tool is optimized for simplicity and reproducibility.
+This pipeline provides an automated and lightweight solution for processing ChIP-seq data. It supports both single-end and paired-end sequencing reads and performs all major steps from raw read preprocessing to peak calling. The tool is optimized for simplicity and reproducibility.
 
 ## Features
 - Supports both single-end and paired-end reads
@@ -174,8 +175,73 @@ options:
 - sampleX*.bam — Aligned and sorted BAM file
 - sampleX*.bw — Library-size normalized BigWig signal
 - sampleX_QC/ — Quality control reports
-- sample\*Peak - peaks called by MACS2 
+- sampleX\*Peak - peaks called by MACS2 
 
+
+
+## III. ATAC-Seq Processing Tool
+
+This pipeline offers a streamlined and reproducible solution for ATAC-seq data analysis. Designed for paired-end sequencing data, it performs essential steps from raw FASTQ files to peak calling and quality control. The pipeline prioritizes robustness, automation, and interpretability.
+
+## Features
+
+- Designed for paired-end reads
+- Trimming using **Trimmomatic**
+- Alignment using **BWA**
+- Mitochondrial read filtering and MAPQ filtering using **SAMtools**
+- BigWig track generation using **deepTools** (bamCoverage)
+- Peak calling with **MACS2**, optimized for narrow peaks (with optional broad peak support)
+- Quality control with **ATAQV** for ATAC-specific metrics
+- Summary report generation using **MultiQC**
+- Detailed logging for each stage to ensure reproducibility
+
+### Example Usage
+
+```bash
+atac-seq SRR123456.R1.fq.gz SRR123456.R2.fq.gz\
+  -sp hsap \
+  -mq 10 \
+  --threads 4 &
+```
+
+### Options
+```text
+usage: atac-seq [-h] [-sp {hsap,mmus}] [-mq MAPQ] [--genome-dir GENOME_DIR] [--peak-type {narrow,broad}] [--no-trim] [--threads THREADS]
+                [--keep-intermediate]
+                file1 file2
+
+A streamlined ATAC-seq preprocessing pipeline.
+
+Features:
+- Supports paired-end reads.
+- BWA-based alignment.
+- Normalized bigWig signal track generation.
+- Peak calling with MACS2 (default=narrowPeak).
+
+positional arguments:
+  file1                 Input FASTQ file (R1). Format: .(fastq|fq) or .(fastq|fq).gz
+  file2                 Input FASTQ file (R2). Format: .(fastq|fq) or .(fastq|fq).gz
+
+options:
+  -h, --help            show this help message and exit
+  -sp {hsap,mmus}, --species {hsap,mmus}
+                        Target species genome: 'hsap' (hg38) or 'mmus' (mm10). Default is 'hsap'.
+  -mq MAPQ, --mapq MAPQ
+                        Minimum MAPQ score to retain reads in the BAM file. Default is 5.
+  --genome-dir GENOME_DIR
+                        Optional: provide a custom genome directory path. Please structure the genome folder as defaut ones.
+  --peak-type {narrow,broad}
+                        Type of peaks to call: narrow (default) or broad.
+  --no-trim             Disable read trimming step. By default, trimming is performed.
+  --threads THREADS     Number of threads. Default is 4.
+  --keep-intermediate   Keep intermediate files.
+```
+### Output
+- sampleX*.bam — Aligned and sorted BAM file
+- sampleX*.bw — Library-size normalized BigWig signal
+- sampleX\*Peak - peaks called by MACS2 
+- sampleX\*ataqv - ATAQV analysis
+- sampleX_QC/ — Quality control reports
 
 
 
@@ -244,7 +310,7 @@ MIT License
 
 ### Acknowledgments
 
-This pipeline integrates many excellent open-source bioinformatics tools. Credit goes to the developers of STAR, Salmon, Trimmomatic, SAMtools, Subread, Qualimap, UCSC tools and so on.
+This pipeline integrates many excellent open-source bioinformatics tools. Credit goes to the developers of STAR, Salmon, BWA, SAMtools, Subread, Qualimap, UCSC tools and so on.
 
 
 

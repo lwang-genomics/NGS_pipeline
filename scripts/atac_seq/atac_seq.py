@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-A streamlined ChIP-seq preprocessing pipeline.
+A streamlined ATAC-seq preprocessing pipeline.
 
 Features:
-- Supports both single-end and paired-end reads.
+- Supports paired-end reads.
 - BWA-based alignment.
 - Normalized bigWig signal track generation.
-- Peak calling with MACS2 (narrow or broad peaks).
+- Peak calling with MACS2 (default=narrowPeak).
 
 """
 
@@ -21,8 +21,8 @@ from scripts.common import utils
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawTextHelpFormatter)
-    parser.add_argument("file1", help="Input FASTQ file (R1). For single-end reads, provide only this file. Format: .(fastq|fq) or .(fastq|fq).gz")
-    parser.add_argument("file2", nargs="?", help="Optional FASTQ file (R2) for paired-end reads. Leave blank for single-end. Format: .(fastq|fq) or .(fastq|fq).gz")
+    parser.add_argument("file1", help="Input FASTQ file (R1). Format: .(fastq|fq) or .(fastq|fq).gz")
+    parser.add_argument("file2", help="Input FASTQ file (R2). Format: .(fastq|fq) or .(fastq|fq).gz")
     parser.add_argument("-sp", "--species", choices=["hsap", "mmus"], default="hsap",
                         help="Target species genome: 'hsap' (hg38) or 'mmus' (mm10). Default is 'hsap'.")
     parser.add_argument('-mq', '--mapq', type=int, default=5,
@@ -37,8 +37,6 @@ def main():
     parser.add_argument("--keep-intermediate", action="store_true", help="Keep intermediate files.")
     args = parser.parse_args()
 
-    # Determine paired-end or single-end
-    is_paired = args.file2 is not None
 
     if args.genome_dir:
         GENOME_DIR = args.genome_dir
@@ -60,8 +58,8 @@ def main():
     log_file = utils.start_logging(sample_name)
 
     # Enhanced log header
-    mode = "PAIR-END MODE" if is_paired else "SINGLE-END MODE"
-    header = f"CHIP-SEQ: {mode}"
+    mode = "PAIR-END MODE"
+    header = f"ATAC-SEQ: {mode}"
     log_file.write("\n" + "="*100 + "\n")
     log_file.write(f"{header.center(100)}\n")
     log_file.write("="*100 + "\n\n")
@@ -91,16 +89,21 @@ def main():
 
     # Stage 3: Alignment with BWA
     sam_file = f"{sample_name}_aligned.sam"
-    if is_paired:
+    if args.file2:
         bwa_cmd = f"bwa mem -t {args.threads} {BWA_INDEX} {trimmed_R1} {trimmed_R2} > {sam_file}"
     else:
         bwa_cmd = f"bwa mem -t {args.threads} {BWA_INDEX} {trimmed_single} > {sam_file}"
 
     utils.log_stage("Alignment with BWA", bwa_cmd, log_file)
 
+    # Stage 3.5: Remove mitochondrial reads ("chrM")
+    sam_no_mito = f"{sample_name}_noM.sam"
+    remove_mito_cmd = f"samtools view -h {sam_file} | awk '$3 != \"chrM\" || $1 ~ /^@/' > {sam_no_mito}"
+    utils.log_stage("Remove Mitochondrial Reads", remove_mito_cmd, log_file)
+
     # Stage 4: Convert, filter, sort and index BAM
     filtered_bam = f"{sample_name}_filtered_sorted.bam"
-    filter_cmd = f"samtools view -bS -q {args.mapq} -@ {args.threads} {sam_file} | samtools sort -@ {args.threads} -o {filtered_bam} && samtools index {filtered_bam}"
+    filter_cmd = f"samtools view -bS -q {args.mapq} -@ {args.threads} {sam_no_mito} | samtools sort -@ {args.threads} -o {filtered_bam} && samtools index {filtered_bam}"
     utils.log_stage("Convert, Filter and Sort BAM", filter_cmd, log_file)
 
     # Stage 5: Generate bigWig
@@ -114,24 +117,36 @@ def main():
         peak_type_flag = "-q 0.01"
 
     macs2_cmd = (
-        f"macs2 callpeak -t {filtered_bam} -f {'BAMPE' if is_paired else 'BAM'} -n {sample_name} -g "
+        f"macs2 callpeak --shift -100 --extsize 200 --nomodel -t {filtered_bam} -f {'BAMPE' if args.file2 else 'BAM'} -n {sample_name} -g "
         f"{'hs' if args.species == 'hsap' else 'mm'} {peak_type_flag} "
         )
     utils.log_stage("MACS2 Peak Calling", macs2_cmd, log_file)
 
-    # Stage 7: MultiQC summary
+
+    # Stage 7: Run ataqv for ATAC-seq quality control
+    ataqv_output_dir = f"{sample_name}_ataqv"
+    os.makedirs(ataqv_output_dir, exist_ok=True)
+    ataqv_cmd = (
+        f"ataqv --threads {args.threads} --name {sample_name} "
+        f"--output-dir {ataqv_output_dir} "
+        f"{'hg38' if args.species == 'hsap' else 'mm10'} {filtered_bam}"
+    )
+    utils.log_stage("Run ATAQV QC", ataqv_cmd, log_file)
+
+    # Stage 8: MultiQC summary
     multiqc_cmd = f"multiqc {qc_dir} -n {sample_name}_multiqc_report.html -o {qc_dir}"
     utils.log_stage("MultiQC Report", multiqc_cmd, log_file)
 
     # Cleanup
     if not args.keep_intermediate:
         files_to_remove = []
-        if is_paired:
+        if args.file2:
             files_to_remove = [trimmed_R1, trimmed_R2, unpaired_R1, unpaired_R2]
         else:
             files_to_remove = [trimmed_single]
 
-        files_to_remove.append(sam_file)
+        files_to_remove += [sam_file, sam_no_mito]
+
         for f in files_to_remove:
             if f and os.path.exists(f):
                 os.remove(f)

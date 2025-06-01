@@ -11,7 +11,8 @@ setup(
     entry_points={
         'console_scripts': [
             'rna-seq = scripts.rna_seq.rna_seq:main',
-	    'chip-seq = scripts.chip_seq.chip_seq:main'
+	    'chip-seq = scripts.chip_seq.chip_seq:main',
+	    'atac-seq = scripts.atac_seq.atac_seq:main'
         ],
     },
 )

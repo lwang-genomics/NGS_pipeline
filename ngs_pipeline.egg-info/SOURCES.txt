@@ -6,10 +6,11 @@ ngs_pipeline.egg-info/dependency_links.txt
 ngs_pipeline.egg-info/entry_points.txt
 ngs_pipeline.egg-info/top_level.txt
 scripts/__init__.py
-scripts/atac_seq.py
 scripts/common_stages.py
 scripts/dnaseq_stages.py
 scripts/rnaseq_stages.py
+scripts/atac_seq/__init__.py
+scripts/atac_seq/atac_seq.py
 scripts/chip_seq/__init__.py
 scripts/chip_seq/chip_seq.py
 scripts/common/__init__.py
