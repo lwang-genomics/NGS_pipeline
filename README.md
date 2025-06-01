@@ -22,7 +22,14 @@ git clone https://github.com/lwang-genomics/NGS_pipeline.git
 cd NGS_pipeline
 ```
 
-2.  Install the pipeline locally:
+2. Download default reference files (optional but recommended)
+Current default: hg38 & mm10
+
+```bash
+bash get_references.sh
+```
+
+3.  Install the pipeline locally:
 ```
 pip install .
 ```
@@ -34,10 +41,10 @@ Please ensure the following tools are installed and accessible from your system 
 STAR
 Salmon
 Trimmomatic
-samtools
-subread
-qualimap
-fastqc
+SAMtools
+Subread
+Qualimap
+Fastqc
 MultiQC
 wigToBigWig
 ```
@@ -55,12 +62,12 @@ rna-seq SRR123456.R1.fq.gz SRR123456.R2.fq.gz\
 
 ## Options
 ```text
-usage: rna-seq [-h] [--genome-dir GENOME_DIR] [-sp {hsap,mmus}] [-mq MAPQ] [-st {none,forward,reverse}] [-g GTF] [--pseudo] [--no-trim]
-               [--feature-level {gene,exon}] [--keep-intermediate] [--threads THREADS]
+usage: rna-seq [-h] [-sp {hsap,mmus}] [-mq MAPQ] [-st {none,forward,reverse}] [-g GTF] [--pseudo] [--no-trim] [--feature-level {gene,exon}]
+               [--keep-intermediate] [--genome-dir GENOME_DIR] [--threads THREADS]
                file1 [file2]
 
-A light-weight RNA-seq preprocessing pipeline script. Now supports both single-end and paired-end RNA-seq samples Supports both classic (STAR)
-alignment and psuedo alignment (salmon)
+A light-weight RNA-seq preprocessing pipeline script. The tool now supports both single-end and paired-end RNA-seq and offers flexibility for both
+traditional mapping (STAR) and psuedo alignment (Salmon)
 
 positional arguments:
   file1                 Input FASTQ file (R1). For single-end reads, provide only this file.
@@ -68,8 +75,6 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  --genome-dir GENOME_DIR
-                        Custom genome directory path. Please structure the genome folder as defaut ones.
   -sp {hsap,mmus}, --species {hsap,mmus}
                         Target species genome for alignment: 'hsap' (hg38) or 'mmus' (mm10). Default is 'hsap'.
   -mq MAPQ, --mapq MAPQ
@@ -82,6 +87,8 @@ options:
   --feature-level {gene,exon}
                         Count features at the 'gene' or 'exon' level. Default is 'exon'.
   --keep-intermediate   Keep intermediate files (e.g., SAM, unfiltered BAM). Default is to remove them.
+  --genome-dir GENOME_DIR
+                        Optional: provide a custom genome directory path. Please structure the genome folder as defaut ones.
   --threads THREADS     Number of threads to use for multithreaded tools. Default is 4.
 ```
 ## Output

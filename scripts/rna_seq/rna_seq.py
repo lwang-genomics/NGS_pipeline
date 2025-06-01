@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 A light-weight RNA-seq preprocessing pipeline script.
-Now supports both single-end and paired-end RNA-seq samples
-Supports both classic (STAR) alignment and psuedo alignment (salmon)
+The tool now supports both single-end and paired-end RNA-seq and offers flexibility
+for both traditional mapping (STAR) and psuedo alignment (Salmon)
 
 """
 
@@ -21,8 +21,6 @@ from scripts.common import utils
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--genome-dir', type=Path, required=False,
-                        help='Custom genome directory path. Please structure the genome folder as defaut ones.')
     parser.add_argument('file1', help="Input FASTQ file (R1). For single-end reads, provide only this file.")
     parser.add_argument('file2', nargs='?', default=None,
                         help="Optional FASTQ file (R2) for paired-end reads. Leave blank for single-end.")
@@ -42,6 +40,8 @@ def main():
                         help="Count features at the 'gene' or 'exon' level. Default is 'exon'.")
     parser.add_argument('--keep-intermediate', action='store_true',
                         help="Keep intermediate files (e.g., SAM, unfiltered BAM). Default is to remove them.")
+    parser.add_argument('--genome-dir', type=Path, required=False,
+                        help='Optional: provide a custom genome directory path. Please structure the genome folder as defaut ones.')
     parser.add_argument('--threads', type=int, default=4,
                         help="Number of threads to use for multithreaded tools. Default is 4.")
     args = parser.parse_args()
@@ -100,8 +100,20 @@ def main():
         utils.log_stage("Trimming", trim_cmd, log_file)
 
     if args.pseudo:
-        pseudo_cmd = f"salmon quant -i {SALMON_INDEX} -l A -r {trimmed_files[0]} {'-1 ' + trimmed_files[0] + ' -2 ' + trimmed_files[1] if args.file2 else ''} -p {args.threads} -o {sample_name}_salmon_output"
-        utils.log_stage("Pseudo-alignment (Salmon)", pseudo_cmd, log_file)
+        if args.file2:  # Paired-end
+            salmon_cmd = (
+                f"salmon quant -i {GENOME_DIR / 'salmon_index'} "
+                f"-l A -1 {trimmed_R1} -2 {trimmed_R2} "
+                f"-p {args.threads} -o {sample_name}_salmon_output"
+            )
+        else:  # Single-end
+            salmon_cmd = (
+                f"salmon quant -i {GENOME_DIR / 'salmon_index'} "
+                f"-l A -r {trimmed_R1} "
+                f"-p {args.threads} -o {sample_name}_salmon_output"
+            )
+
+        utils.log_stage("Salmon Quantification", salmon_cmd, log_file)
     else:
         # Stage 3: Alignment with STAR
         aligned_prefix = f"{sample_name}_STAR"
@@ -169,8 +181,10 @@ def main():
 
     # Cleanup intermediate files if requested
     if not args.keep_intermediate:
-        files_to_remove = [trimmed_R1, trimmed_R2, unpaired_R1, unpaired_R2, trimmed_single, unsorted_bam]
-        files_to_remove += glob.glob(f"{aligned_prefix}_Signal.Unique.*.out.wig")
+        files_to_remove = [trimmed_R1, trimmed_R2, unpaired_R1, unpaired_R2, trimmed_single]
+        if not args.pseudo:
+            files_to_remove += glob.glob(f"{sample_name}*.out.wig")
+            files_to_remove.append(unsorted_bam)
 
         for f in files_to_remove:
             if f and os.path.exists(f):
