@@ -97,9 +97,7 @@ MIT License
 
 This pipeline integrates many excellent open-source bioinformatics tools. Credit goes to the developers of STAR, Salmon, Trimmomatic, SAMtools, Subread, Qualimap, UCSC tools and so on.
 
-<<<<<<< HEAD
-Let me know if you have any questions!
-=======
+
 Let me know if you have any questions or suggestions about my pipeline script!
 
->>>>>>> 7aad910 (polished README once)
+
