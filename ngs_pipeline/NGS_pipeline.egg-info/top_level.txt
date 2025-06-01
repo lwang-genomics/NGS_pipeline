@@ -1,2 +1,0 @@
-common
-rna_seq

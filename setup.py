@@ -10,7 +10,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'rna-seq = ngs_pipeline.rna_seq.rna_seq:main',
+            'rna-seq = scripts.rna_seq.rna_seq:main',
         ],
     },
 )

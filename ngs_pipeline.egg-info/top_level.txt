@@ -1,1 +1,1 @@
-ngs_pipeline
+scripts

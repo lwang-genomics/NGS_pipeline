@@ -68,3 +68,13 @@ def end_logging(log_file):
     log_file.write(f"{'End Time:'.ljust(20)} {end_time}\n")
     log_file.write(f"{border}\n")
     log_file.close()
+
+def is_paired_end_bam(bam_file):
+    import subprocess
+    cmd = f"samtools view -c -f 1 {bam_file}"
+    result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    return int(result.stdout.strip()) > 0
+
+
+
+

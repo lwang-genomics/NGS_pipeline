@@ -4,7 +4,7 @@ Pipeline steps in RNA-seq
 '''
 
 import subprocess, sys
-from ngs_pipeline.common import utils
+from scripts.common import utils
 
 #===============
 #===Tool Path===

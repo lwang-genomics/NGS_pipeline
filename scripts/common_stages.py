@@ -3,7 +3,7 @@
 store all the common functions used for sequencing pipeline
 '''
 import subprocess, os
-from ngs_pipeline.common import utils
+from scripts.common import utils
 #===============
 #==Paths Info===
 #===============

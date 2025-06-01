@@ -1,3 +1,0 @@
-[console_scripts]
-rna-seq = rna_seq.rna_seq:main
-

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-written in python 3.6.6
+A light-weight RNA-seq preprocessing pipeline script.
+Now supports both single-end and paired-end RNA-seq samples
+Supports both classic (STAR) alignment and psuedo alignment (salmon)
 
-Refactored for clarity and simplified for shell-executable tools.
-Now supports both single-end and paired-end RNA-seq samples.
 """
 
 import os
@@ -13,10 +13,11 @@ import argparse
 import subprocess
 import re
 import glob
+from pathlib import Path 
 
-from ngs_pipeline.rnaseq_stages import *
-from ngs_pipeline.common_stages import *
-from ngs_pipeline.common import utils
+from scripts.rnaseq_stages import *
+from scripts.common_stages import *
+from scripts.common import utils
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -43,7 +44,7 @@ def main():
                         help="Number of threads to use for multithreaded tools. Default is 4.")
     args = parser.parse_args()
 
-    BASE_DIR = Path(__file__).resolve().parents[1]
+    BASE_DIR = Path(__file__).resolve().parents[2]
     species_dir = 'hg38' if args.species == 'hsap' else 'mm10'
     GENOME_DIR = BASE_DIR / 'lib' / species_dir
     STAR_INDEX = GENOME_DIR / 'star_index'
@@ -80,11 +81,11 @@ def main():
             trimmed_R2 = f"{sample_name}_R2_trimmed.fq.gz"
             unpaired_R1 = f"{sample_name}_R1_unpaired.fq.gz"
             unpaired_R2 = f"{sample_name}_R2_unpaired.fq.gz"
-            trim_cmd = f"trimmomatic PE -threads {args.threads} {args.file1} {args.file2} {trimmed_R1} {unpaired_R1} {trimmed_R2} {unpaired_R2} -phred33 -gzip"
+            trim_cmd = f"trimmomatic PE -threads {args.threads} {args.file1} {args.file2} {trimmed_R1} {unpaired_R1} {trimmed_R2} {unpaired_R2} -phred33 ILLUMINACLIP:TruSeq3-PE.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:25"
             trimmed_files = (trimmed_R1, trimmed_R2)
         else:
             trimmed_single = f"{sample_name}_trimmed.fq.gz"
-            trim_cmd = f"java -jar trimmomatic-0.39.jar SE -threads {args.threads} {args.file1} {trimmed_single} -phred33 -gzip"
+            trim_cmd = f"trimmomatic SE -threads {args.threads} {args.file1} {trimmed_single} -phred33 ILLUMINACLIP:TruSeq3-SE.fa:2:30:10 SLIDINGWINDOW:4:20 MINLEN:25"
             trimmed_files = (trimmed_single, None)
         utils.log_stage("Trimming", trim_cmd, log_file)
 
@@ -94,45 +95,74 @@ def main():
     else:
         # Stage 3: Alignment with STAR
         aligned_prefix = f"{sample_name}_STAR"
-        read_files_command = "--readFilesCommand zcat" if trimmed_files[0].endswith(".gz") else ""
+        read_files_command = "--readFilesCommand gzcat" if trimmed_files[0].endswith(".gz") else ""
         if args.file2:
-            align_cmd = f"STAR --runThreadN {args.threads} --genomeDir {STAR_INDEX} --readFilesIn {trimmed_files[0]} {trimmed_files[1]} {read_files_command} --outFileNamePrefix {aligned_prefix}_ --outSAMtype BAM Unsorted --outWigType wiggle --outWigStrand Unstranded"
+            align_cmd = f"STAR --runThreadN {args.threads} --genomeDir {STAR_INDEX} --readFilesIn {trimmed_files[0]} {trimmed_files[1]} {read_files_command} --outFileNamePrefix {aligned_prefix}_ --outSAMtype BAM SortedByCoordinate --outWigType wiggle --outWigStrand Stranded --outWigNorm RPM"
         else:
-            align_cmd = f"STAR --runThreadN {args.threads} --genomeDir {STAR_INDEX} --readFilesIn {trimmed_files[0]} {read_files_command} --outFileNamePrefix {aligned_prefix}_ --outSAMtype BAM Unsorted --outWigType wiggle --outWigStrand Unstranded"
+            align_cmd = f"STAR --runThreadN {args.threads} --genomeDir {STAR_INDEX} --readFilesIn {trimmed_files[0]} {read_files_command} --outFileNamePrefix {aligned_prefix}_ --outSAMtype BAM SortedByCoordinate --outWigType wiggle --outWigStrand Stranded --outWigNorm RPM"
         utils.log_stage("Alignment (STAR)", align_cmd, log_file)
 
         # Stage 4: Filter, sort and index BAM
-        unsorted_bam = f"{aligned_prefix}_Aligned.out.bam"
+        unsorted_bam = f"{aligned_prefix}_Aligned.sortedByCoord.out.bam"
         sorted_bam = f"{sample_name}_filtered_sorted.bam"
         filter_sort_index_cmd = f"samtools view -b -q {args.mapq} {unsorted_bam} | samtools sort -@ {args.threads} -o {sorted_bam} && samtools index {sorted_bam}"
         utils.log_stage("Filter, Sort, and Index BAM", filter_sort_index_cmd, log_file)
 
         # Stage 5: Convert wiggle to bigWig
-        wig_file = f"{aligned_prefix}_Signal.UniqueMultiple.str1.out.wig"
-        bw_file = f"{sample_name}.bw"
-        wig_to_bw_cmd = f"wigToBigWig {wig_file} {CHROM_SIZES} {bw_file}"
-        utils.log_stage("Convert Wig to BigWig", wig_to_bw_cmd, log_file)
+        wig_cmds = []
+        for strand in ['str1', 'str2']:
+            wig_file = f"{aligned_prefix}_Signal.Unique.{strand}.out.wig"
+            bw_file = f"{sample_name}.{strand}.bw"
+            wig_cmds.append(f"wigToBigWig {wig_file} {CHROM_SIZES} {bw_file}")
+
+        combined_cmd = " && ".join(wig_cmds)
+        utils.log_stage("Convert Wig to BigWig (str1 & str2)", combined_cmd, log_file)
 
         # Stage 6: Feature counting
-        count_output = f"{sample_name}_counts.txt"
-        count_cmd = f"featureCounts -a {GTF_FILE} -o {count_output} -t {args.feature_level} -s {1 if args.strandness == 'forward' else 2 if args.strandness == 'reverse' else 0} -T {args.threads} {sorted_bam}"
-        utils.log_stage("Feature Counting", count_cmd, log_file)
+        bam_file = f"{sample_name}_filtered_sorted.bam"
+        counts_file =f"{sample_name}_counts.txt"
+        paired_flag = "-p" if utils.is_paired_end_bam(bam_file) else ""
+        if args.strandness == "none":
+            strand_option = "-s 0"
+        elif args.strandness == "forward":
+            strand_option = "-s 1"
+        else:  # "reverse"
+            strand_option = "-s 2"
 
-        # Stage 7: Picard QC
-        picard_cmd = f"picard CollectRnaSeqMetrics I={sorted_bam} O={qc_dir}/{sample_name}_picard_metrics.txt REF_FLAT=ref_flat.txt STRAND={'SECOND_READ_TRANSCRIPTION_STRAND' if args.strandness == 'reverse' else 'FIRST_READ_TRANSCRIPTION_STRAND'} RIBOSOMAL_INTERVALS=rRNA.intervals"
-        utils.log_stage("Picard RNA Metrics", picard_cmd, log_file)
+        featurecounts_cmd = (
+            f"featureCounts {paired_flag} -T {args.threads} "
+            f"{strand_option} -a {GTF_FILE} -o {counts_file} {bam_file}"
+        )
+        utils.log_stage("Feature Counting", featurecounts_cmd, log_file)
 
-        # Stage 8: Qualimap
-        qualimap_cmd = f"qualimap rnaseq -outdir {qc_dir}/{sample_name}_qualimap -bam {sorted_bam} -gtf {GTF_FILE} -p {'strand-specific-reverse' if args.strandness == 'reverse' else 'strand-specific-forward' if args.strandness == 'forward' else 'non-strand-specific'} -outformat PDF"
+        # Stage 7: Qualimap
+        strand_option = {
+            "reverse": "strand-specific-reverse",
+            "forward": "strand-specific-forward",
+            "none": "non-strand-specific"
+        }[args.strandness]
+
+        qualimap_cmd = (
+            f"qualimap rnaseq "
+            f"-outdir {qc_dir}/{sample_name}_qualimap "
+            f"-bam {sorted_bam} "
+            f"-gtf {GTF_FILE} "
+            f"-p {strand_option} "
+            f"--java-mem-size=4G "
+            f"-outformat PDF"
+        )
         utils.log_stage("Qualimap RNA-seq QC", qualimap_cmd, log_file)
 
-    # Stage 9: MultiQC summary
+    # Stage 8: MultiQC summary
     multiqc_cmd = f"multiqc {qc_dir} -n {sample_name}_multiqc_report.html -o {qc_dir}"
     utils.log_stage("MultiQC Report", multiqc_cmd, log_file)
 
     # Cleanup intermediate files if requested
     if not args.keep_intermediate:
-        for f in [trimmed_R1, trimmed_R2, unpaired_R1, unpaired_R2, trimmed_single, unsorted_bam, wig_file]:
+        files_to_remove = [trimmed_R1, trimmed_R2, unpaired_R1, unpaired_R2, trimmed_single, unsorted_bam]
+        files_to_remove += glob.glob(f"{aligned_prefix}_Signal.Unique.*.out.wig")
+
+        for f in files_to_remove:
             if f and os.path.exists(f):
                 os.remove(f)
 
