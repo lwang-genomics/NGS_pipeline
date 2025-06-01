@@ -79,10 +79,10 @@ options:
   --threads THREADS     Number of threads to use for multithreaded tools. Default is 4.
 
 ## Output
-	•	sampleX*out.bam — Aligned and sorted BAM file
-	•	sampleX_counts.txt — Gene count matrix
-	•	sampleX*.bw — Strand-specific normalized BigWig signal
-	•	sampleX_QC/ — Quality control reports
+- sampleX*out.bam — Aligned and sorted BAM file
+- sampleX_counts.txt — Gene count matrix
+- sampleX*.bw — Strand-specific normalized BigWig signal
+- sampleX_QC/ — Quality control reports
 
 ## Logging
 
