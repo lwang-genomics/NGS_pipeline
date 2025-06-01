@@ -80,8 +80,7 @@ MIT License
 
 Liangxi Wang – [lwang@ipmc.cnrs.fr]
 
-Let me know if you want this saved directly into a `README.md` file or edited for a different style (e.g., more minimal, with badges, etc.).
-
+Let me know if you have any questions!
 
 
 
