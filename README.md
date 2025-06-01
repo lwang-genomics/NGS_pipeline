@@ -30,14 +30,17 @@ pip install .
 
 Please ensure the following tools are installed and accessible from your system PATH:
 
+```text
 STAR
 Salmon
 Trimmomatic
 samtools
 subread
 qualimap
+fastqc
+MultiQC
 wigToBigWig
-
+```
 
 ## Example Usage
 
@@ -56,8 +59,7 @@ usage: rna-seq [-h] [-sp {hsap,mmus}] [-mq MAPQ] [-st {none,forward,reverse}] [-
                [--keep-intermediate] [--threads THREADS]
                file1 [file2]
 
-A light-weight RNA-seq preprocessing pipeline script. Now supports both single-end and paired-end RNA-seq samples Supports both classic (STAR)
-alignment and psuedo alignment (salmon)
+A light-weight RNA-seq preprocessing pipeline script. The tool now supports both single-end and paired-end RNA-seq samples and offers the flexibility for both traditional alignment (STAR) and psuedo-alignment (Salmon). 
 
 positional arguments:
   file1                 Input FASTQ file (R1). For single-end reads, provide only this file.
@@ -78,13 +80,13 @@ options:
                         Count features at the 'gene' or 'exon' level. Default is 'exon'.
   --keep-intermediate   Keep intermediate files (e.g., SAM, unfiltered BAM). Default is to remove them.
   --threads THREADS     Number of threads to use for multithreaded tools. Default is 4.
-
+```
 ## Output
 - sampleX*out.bam — Aligned and sorted BAM file
 - sampleX_counts.txt — Gene count matrix
 - sampleX*.bw — Strand-specific normalized BigWig signal
 - sampleX_QC/ — Quality control reports
-```
+
 ## Logging
 
 Each major processing step is logged to a file with command and execution details (\*.log).
