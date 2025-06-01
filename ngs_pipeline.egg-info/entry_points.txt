@@ -1,2 +1,3 @@
 [console_scripts]
+chip-seq = scripts.chip_seq.chip_seq:main
 rna-seq = scripts.rna_seq.rna_seq:main

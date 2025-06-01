@@ -1,17 +1,4 @@
-# NGS_pipeline: RNA-Seq Processing Tool
-
-This repository contains a modular and automated Python tool for processing RNA-Seq data. It supports both single-end and paired-end reads with comprehensive support for trimming, alignment, quantification, and quality control. The tool offers flexibity to use both traditional mapping (STAR) and pseudo-alignment (Salmon).
-
-## Features
-
-- Automatic detection of read type (single-end or paired-end)  
-- Trimming with **Trimmomatic**  
-- Alignment using **STAR** or **Salmon**  
-- Sorting and indexing of BAM files via **SAMtools**  
-- Gene quantification with **featureCounts**   
-- Quality control with **fastqc**, **Qualimap** (summarized by **MultiQC**) 
-- Generation of strand-specific BigWig files  
-- Detailed and reproducible logging at each processing stages 
+# NGS_pipeline: A super pipeline wrapper for RNA-seq, ChIP-seq and ATAC-seq
 
 ## Installation
 
@@ -22,7 +9,7 @@ git clone https://github.com/lwang-genomics/NGS_pipeline.git
 cd NGS_pipeline
 ```
 
-2. Download default reference files (optional but recommended). \n
+2. Download default reference files (optional but recommended).  
 Current default: hg38 & mm10
 
 ```bash
@@ -38,18 +25,44 @@ pip install .
 Please ensure the following tools are installed and accessible from your system PATH:
 
 ```text
-STAR
-Salmon
+## Common
+
 Trimmomatic
 SAMtools
-Subread
-Qualimap
 Fastqc
 MultiQC
 wigToBigWig
+Deeptools
+
+## RNA-seq:
+STAR
+Salmon
+Subread
+Qualimap
+
+## ChIP-seq & ATAC-seq:
+BWA
+MACS2
+
 ```
 
-## Example Usage
+## I. RNA-Seq Processing Tool
+
+This repository contains a modular and automated Python tool for processing RNA-Seq data. It supports both single-end and paired-end reads with comprehensive support for trimming, alignment, quantification, and quality control. The tool offers flexibity to use both traditional mapping (STAR) and pseudo-alignment (Salmon).
+
+### Features
+
+- Automatic detection of read type (single-end or paired-end)  
+- Trimming with **Trimmomatic**  
+- Alignment using **STAR** or **Salmon**  
+- Sorting and indexing of BAM files via **SAMtools**  
+- Gene quantification with **featureCounts**   
+- Quality control with **fastqc**, **Qualimap** (summarized by **MultiQC**) 
+- Generation of strand-specific BigWig files  
+- Detailed and reproducible logging at each processing stages 
+
+
+### Example Usage
 
 ```bash
 rna-seq SRR123456.R1.fq.gz SRR123456.R2.fq.gz\
@@ -60,7 +73,7 @@ rna-seq SRR123456.R1.fq.gz SRR123456.R2.fq.gz\
   --threads 4 &
 ```
 
-## Options
+### Options
 ```text
 usage: rna-seq [-h] [-sp {hsap,mmus}] [-mq MAPQ] [-st {none,forward,reverse}] [-g GTF] [--pseudo] [--no-trim] [--feature-level {gene,exon}]
                [--keep-intermediate] [--genome-dir GENOME_DIR] [--threads THREADS]
@@ -91,13 +104,81 @@ options:
                         Optional: provide a custom genome directory path. Please structure the genome folder as defaut ones.
   --threads THREADS     Number of threads to use for multithreaded tools. Default is 4.
 ```
-## Output
+### Output
 - sampleX*out.bam — Aligned and sorted BAM file
 - sampleX_counts.txt — Gene count matrix
 - sampleX*.bw — Strand-specific normalized BigWig signal
 - sampleX_QC/ — Quality control reports
 
-## Logging
+
+## II. ChIP-Seq Processing Tool
+
+This pipeline provides an automated and lightweight solution for processing ChIP-Seq data. It supports both single-end and paired-end sequencing reads and performs all major steps from raw read preprocessing to peak calling. The tool is optimized for simplicity and reproducibility.
+
+## Features
+- Supports both single-end and paired-end reads
+- Trimming using **Trimmomatic**
+- Alignment using **BWA**
+- Conversion, filtering, and sorting of BAM files via **SAMtools**
+- BigWig track generation with **deepTools** (bamCoverage)
+- Peak calling using **MACS2**, with support for narrow and broad peak types
+- Logging of each processing step with reproducible command outputs
+
+
+### Example Usage
+
+```bash
+chip-seq SRR123456.R1.fq.gz\
+  -sp hsap \
+  -mq 10 \
+  --peak-type narrow \
+  --threads 4 &
+```
+
+### Options
+```text
+usage: chip-seq [-h] [-sp {hsap,mmus}] [-mq MAPQ] [--genome-dir GENOME_DIR] [--peak-type {narrow,broad}] [--no-trim] [--threads THREADS]
+                [--keep-intermediate]
+                file1 [file2]
+
+A streamlined ChIP-seq preprocessing pipeline.
+
+Features:
+- Supports both single-end and paired-end reads.
+- BWA-based alignment.
+- Normalized bigWig signal track generation.
+- Peak calling with MACS2 (narrow or broad peaks).
+
+positional arguments:
+  file1                 Input FASTQ file (R1). For single-end reads, provide only this file. Format: .(fastq|fq) or .(fastq|fq).gz
+  file2                 Optional FASTQ file (R2) for paired-end reads. Leave blank for single-end. Format: .(fastq|fq) or .(fastq|fq).gz
+
+options:
+  -h, --help            show this help message and exit
+  -sp {hsap,mmus}, --species {hsap,mmus}
+                        Target species genome: 'hsap' (hg38) or 'mmus' (mm10). Default is 'hsap'.
+  -mq MAPQ, --mapq MAPQ
+                        Minimum MAPQ score to retain reads in the BAM file. Default is 5.
+  --genome-dir GENOME_DIR
+                        Optional: provide a custom genome directory path. Please structure the genome folder as defaut ones.
+  --peak-type {narrow,broad}
+                        Type of peaks to call: narrow (default) or broad.
+  --no-trim             Disable read trimming step. By default, trimming is performed.
+  --threads THREADS     Number of threads. Default is 4.
+  --keep-intermediate   Keep intermediate files.
+```
+### Output
+- sampleX*.bam — Aligned and sorted BAM file
+- sampleX*.bw — Library-size normalized BigWig signal
+- sampleX_QC/ — Quality control reports
+- sample\*Peak - peaks called by MACS2 
+
+
+
+
+
+
+### Logging
 
 Each major processing step is logged to a file with command and execution details (\*.log).
 
@@ -154,11 +235,11 @@ End Time:            2025-06-01 08:58:19
 ====================================================================================================
 ```
 
-## License
+### License
 
 MIT License
 
-## Acknowledgments
+### Acknowledgments
 
 This pipeline integrates many excellent open-source bioinformatics tools. Credit goes to the developers of STAR, Salmon, Trimmomatic, SAMtools, Subread, Qualimap, UCSC tools and so on.
 

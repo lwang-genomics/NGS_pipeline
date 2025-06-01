@@ -15,15 +15,13 @@ import re
 import glob
 from pathlib import Path 
 
-from scripts.rnaseq_stages import *
-from scripts.common_stages import *
 from scripts.common import utils
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('file1', help="Input FASTQ file (R1). For single-end reads, provide only this file.")
+    parser.add_argument('file1', help="Input FASTQ file (R1). For single-end reads, provide only this file. Format: .(fastq|fq) or .(fastq|fq).gz")
     parser.add_argument('file2', nargs='?', default=None,
-                        help="Optional FASTQ file (R2) for paired-end reads. Leave blank for single-end.")
+                        help="Optional FASTQ file (R2) for paired-end reads. Leave blank for single-end. Format: .(fastq|fq) or .(fastq|fq).gz")
     parser.add_argument('-sp', '--species', choices=['hsap', 'mmus'], default='hsap',
                         help="Target species genome for alignment: 'hsap' (hg38) or 'mmus' (mm10). Default is 'hsap'.")
     parser.add_argument('-mq', '--mapq', type=int, default=5,
@@ -181,7 +179,13 @@ def main():
 
     # Cleanup intermediate files if requested
     if not args.keep_intermediate:
-        files_to_remove = [trimmed_R1, trimmed_R2, unpaired_R1, unpaired_R2, trimmed_single]
+        files_to_remove = []
+
+        if args.file2:
+            files_to_remove = [trimmed_R1, trimmed_R2, unpaired_R1, unpaired_R2]
+        else:
+            files_to_remove = [trimmed_single]
+
         if not args.pseudo:
             files_to_remove += glob.glob(f"{sample_name}*.out.wig")
             files_to_remove.append(unsorted_bam)
