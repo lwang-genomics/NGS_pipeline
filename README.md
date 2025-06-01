@@ -5,12 +5,12 @@ This repository contains a modular and automated Python tool for processing RNA-
 ## Features
 
 - Automatic detection of read type (single-end or paired-end)  
-- Trimming with Trimmomatic  
+- Trimming with **Trimmomatic**  
 - Alignment using **STAR** or **Salmon**  
-- Sorting and indexing of BAM files via SAMtools  
+- Sorting and indexing of BAM files via **SAMtools**  
 - Gene quantification with **featureCounts**   
 - Quality control with **fastqc**, **Qualimap** (summarized by **MultiQC**) 
-- Generation of strand-specific **BigWig** files  
+- Generation of strand-specific BigWig files  
 - Detailed and reproducible logging at each processing stages 
 
 ## Installation
@@ -22,7 +22,7 @@ git clone https://github.com/lwang-genomics/NGS_pipeline.git
 cd NGS_pipeline
 ```
 
-2.	Install the pipeline locally:
+2.  Install the pipeline locally:
 ```
 pip install .
 ```
@@ -79,10 +79,10 @@ options:
   --threads THREADS     Number of threads to use for multithreaded tools. Default is 4.
 
 ## Output
-	•	sampleX*out.bam — Aligned and sorted BAM file
-	•	sampleX_counts.txt — Gene count matrix
-	•	sampleX*.bw — Strand-specific normalized BigWig signal
-	•	sampleX_QC/ — Quality control reports
+- sampleX*out.bam — Aligned and sorted BAM file
+- sampleX_counts.txt — Gene count matrix
+- sampleX*.bw — Strand-specific normalized BigWig signal
+- sampleX_QC/ — Quality control reports
 
 ## Logging
 
@@ -97,8 +97,7 @@ MIT License
 
 This pipeline integrates many excellent open-source bioinformatics tools. Credit goes to the developers of STAR, Salmon, Trimmomatic, SAMtools, Subread, Qualimap, UCSC tools and so on.
 
+
 Let me know if you have any questions or suggestions about my pipeline script!
-
-
 
 
