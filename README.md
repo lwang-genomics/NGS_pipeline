@@ -87,8 +87,8 @@ A light-weight RNA-seq preprocessing pipeline script. The tool now supports both
 traditional mapping (STAR) and psuedo alignment (Salmon)
 
 positional arguments:
-  file1                 Input FASTQ file (R1). For single-end reads, provide only this file.
-  file2                 Optional FASTQ file (R2) for paired-end reads. Leave blank for single-end.
+  file1                 Input FASTQ file (R1). For single-end reads, provide only this file. Format: .(fastq|fq) or .(fastq|fq).gz
+  file2                 Optional FASTQ file (R2) for paired-end reads. Leave blank for single-end. Format: .(fastq|fq) or .(fastq|fq).gz
 
 options:
   -h, --help            show this help message and exit
