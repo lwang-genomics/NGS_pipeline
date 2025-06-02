@@ -240,7 +240,7 @@ options:
 - sampleX*.bam — Aligned and sorted BAM file
 - sampleX*.bw — Library-size normalized BigWig signal
 - sampleX\*Peak - peaks called by MACS2 
-- sampleX\*ataqv - ATAQV analysis
+- sampleX_ataqv\* - ATAQV analysis
 - sampleX_QC/ — Quality control reports
 
 
@@ -314,6 +314,6 @@ This pipeline integrates many excellent open-source bioinformatics tools. Credit
 
 
 
-Let me know if you have any questions or suggestions about my pipeline script!
+Please let me know if you have any questions or suggestions about my pipeline script!
 
 

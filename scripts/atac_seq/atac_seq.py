@@ -127,9 +127,9 @@ def main():
     ataqv_output_dir = f"{sample_name}_ataqv"
     os.makedirs(ataqv_output_dir, exist_ok=True)
     ataqv_cmd = (
-        f"ataqv --threads {args.threads} --name {sample_name} "
-        f"--output-dir {ataqv_output_dir} "
-        f"{'hg38' if args.species == 'hsap' else 'mm10'} {filtered_bam}"
+        f"ataqv --threads {args.threads} --name {sample_name} --metrics-file {sample_name}_ataqv_metrics.json "
+        f"--peak-file {sample_name}_peaks.narrowPeak {'human' if args.species == 'hsap' else 'mouse'} "
+        f" {filtered_bam}"
     )
     utils.log_stage("Run ATAQV QC", ataqv_cmd, log_file)
 

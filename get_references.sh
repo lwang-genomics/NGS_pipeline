@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-mkdir lib
+mkdir -p  lib
 cd lib
 
 echo "[INFO] Downloading genome and index files..."
 
-URL1="https://download_link.com/lib_hg38.tar.gz"
-URL2="https://download_link.com/lib_mm10.tar.gz"
+URL1="https://zenodo.org/records/15571133/files/hg38.tar.gz?download=1"
+URL2="https://zenodo.org/records/15571143/files/mm10.tar.gz?download=1"
 
 # Download and extract
 wget -O hg38.tar.gz $URL1
