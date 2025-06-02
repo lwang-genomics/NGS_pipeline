@@ -52,7 +52,7 @@ Aatqv
 
 ## I. RNA-Seq Processing Tool
 
-This repository contains a modular and automated Python tool for processing RNA-seq data. It supports both single-end and paired-end reads with comprehensive support for trimming, alignment, quantification, and quality control. The tool offers flexibity to use both traditional mapping (STAR) and pseudo-alignment (Salmon).
+This unit contains a modular and automated Python tool for processing RNA-seq data. It supports both single-end and paired-end reads with comprehensive support for trimming, alignment, quantification, and quality control. The tool offers flexibity to use both traditional mapping (STAR) and pseudo-alignment (Salmon).
 
 ### Features
 
@@ -239,7 +239,7 @@ options:
 ### Output
 - sampleX*.bam — Aligned and sorted BAM file
 - sampleX*.bw — Library-size normalized BigWig signal
-- sampleX\*Peak - peaks called by MACS2 
+- sampleX\*Peak - Peaks called by MACS2 
 - sampleX_ataqv\* - ATAQV analysis
 - sampleX_QC/ — Quality control reports
 
