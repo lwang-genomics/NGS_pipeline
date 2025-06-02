@@ -18,4 +18,6 @@ tar -xzf mm10.tar.gz
 
 rm hg38.tar.gz mm10.tar.gz
 
+cd ..
+
 echo "[INFO] Genome references extracted into ./lib/"

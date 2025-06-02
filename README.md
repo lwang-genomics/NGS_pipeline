@@ -21,7 +21,7 @@ bash get_references.sh
 
 3.  Install the pipeline locally:
 ```
-pip install .
+pip install -e .
 ```
 ## External Dependencies
 
