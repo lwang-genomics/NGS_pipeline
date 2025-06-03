@@ -113,6 +113,7 @@ options:
 - sampleX_counts.txt — Gene count matrix
 - sampleX*.bw — Strand-specific normalized BigWig signal
 - sampleX_QC/ — Quality control reports
+- sampleX.log - Detailed logging
 
 
 ## II. ChIP-Seq Processing Tool
@@ -176,6 +177,7 @@ options:
 - sampleX*.bw — Library-size normalized BigWig signal
 - sampleX_QC/ — Quality control reports
 - sampleX\*Peak - peaks called by MACS2 
+- sampleX.log - Detailed logging
 
 
 
@@ -242,6 +244,7 @@ options:
 - sampleX\*Peak - Peaks called by MACS2 
 - sampleX_ataqv\* - ATAQV analysis
 - sampleX_QC/ — Quality control reports
+- sampleX.log - Detailed logging
 
 
 
@@ -249,7 +252,7 @@ options:
 
 ### Logging
 
-Each major processing step is logged to a file with command and execution details (\*.log).
+Each major processing step is logged to a file with command and execution details (sampleX.log).
 
 A test example:
 ```text
