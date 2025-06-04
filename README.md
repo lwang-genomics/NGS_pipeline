@@ -311,6 +311,7 @@ End Time:            2025-06-01 08:58:19
 
 MIT License
 
+
 ### Acknowledgments
 
 This pipeline integrates many excellent open-source bioinformatics tools. Credit goes to the developers of STAR, Salmon, BWA, SAMtools, Subread, Qualimap, UCSC tools and so on.
